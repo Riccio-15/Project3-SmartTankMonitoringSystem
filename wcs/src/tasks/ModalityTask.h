@@ -2,16 +2,17 @@
 #define __MODALITY_TASK__
 
 #include "devices/Button.h"
+#include "kernel/Task.h"
 
-class ModalityTask
-{
+class ModalityTask : public Task {
+	
 public:
-    ModalityTask(Button* button);
+	ModalityTask(Button* button);
 
-    void tick();
-    
+	void tick();
+	
 private:
-    Button* button;
+	Button* button;
 };
 
 #endif

@@ -14,5 +14,6 @@ void ModalityTask::tick()
     {
         SystemMode newMode = Context::isAutoMode() ? MODE_MANUAL : MODE_AUTO;
         Context::setMode(newMode);
+        Context::setModeJustChanged(true);
     }
 }

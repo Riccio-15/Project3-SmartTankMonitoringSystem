@@ -40,6 +40,26 @@ int Context::getValveCurrentOpen() {
     return getInstance().valveCurrentOpen;
 }
 
+bool Context::hasOpeningTargetJustChanged()
+{
+    return getInstance().openingTargetJustChanged;
+}
+
+bool Context::hasModeJustChanged()
+{
+    return getInstance().modeJustChanged;
+}
+
+void Context::setOpeningTargetJustChanged(bool changed)
+{
+    getInstance().openingTargetJustChanged = changed;
+}
+
+void Context::setModeJustChanged(bool changed)
+{
+    getInstance().modeJustChanged = changed;
+}
+
 Context& Context::getInstance() {
     static Context instance;
     return instance;

@@ -29,6 +29,11 @@ public:
     static void setValveCurrentOpen(int percent);
     static int getValveCurrentOpen();
 
+    static bool hasOpeningTargetJustChanged();
+    static bool hasModeJustChanged();
+    static void setOpeningTargetJustChanged(bool changed);
+    static void setModeJustChanged(bool changed);
+
     static Context &getInstance();
 
 private:
@@ -39,6 +44,8 @@ private:
     bool networkOk;
     int valveTargetOpen;
     int valveCurrentOpen;
+    bool modeJustChanged;
+    bool openingTargetJustChanged;
 };
 
 #endif

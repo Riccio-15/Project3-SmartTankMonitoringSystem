@@ -14,7 +14,7 @@ PotentiometerTask::PotentiometerTask(Potentiometer *potentiometer)
 void PotentiometerTask::tick()
 {
 
-    if (!Context::isManualMode())
+    if (!Context::isManualMode() || !Context::isNetworkOk())
     {
         return;
     }
@@ -24,6 +24,7 @@ void PotentiometerTask::tick()
     if (lastValue < 0 || abs(value - lastValue) >= DEADBAND_PERCENT)
     {
         Context::setValveTargetOpen(value);
+        Context::setOpeningTargetJustChanged(true);
         lastValue = value;
     }
 }

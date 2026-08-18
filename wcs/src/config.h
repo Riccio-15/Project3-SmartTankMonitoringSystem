@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-constexpr int BT_PIN = 2;
+constexpr int BT_PIN = 4;
 constexpr int POT_PIN = A0;
 constexpr int SERVO_PIN = 9;
 

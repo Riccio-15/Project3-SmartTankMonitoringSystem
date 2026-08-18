@@ -8,7 +8,7 @@ constexpr int COMPLETE_MOVEMENT_TIME = 10;
 constexpr int MAX_ANGLE_MOTOR = 90;
 
 ValveTask::ValveTask(ServoMotor* motor)
-    : motor(motor), openingAngle(0)
+    : motor(motor), state(IDLE), openingAngle(0)
 {
     motor->on();
 }

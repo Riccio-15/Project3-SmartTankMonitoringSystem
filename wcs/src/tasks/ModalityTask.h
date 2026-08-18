@@ -13,6 +13,7 @@ public:
 	
 private:
 	Button* button;
+	bool buttonJustPressed;
 };
 
 #endif

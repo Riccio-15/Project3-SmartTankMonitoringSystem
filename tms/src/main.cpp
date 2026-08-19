@@ -14,12 +14,12 @@ void setup() {
 
     hw = new HWPlatform();
 
-    sonarTask = new SonarTask(hw->getSonar());
+    sonarTask = new SonarTask(hw->getProximitySensor());
     sonarTask->start("SonarTask", SONAR_SAMPLE_PERIOD_MS);
 
    //TODO: task mqtt
 
-    ledTask = new LedTask(hw->getGreenLed(), hw->getRedLed());
+    ledTask = new LedTask(hw->getGreenLight(), hw->getRedLight());
     ledTask->start("LedTask", LED_TASK_PERIOD_MS);
 }
 

@@ -4,13 +4,13 @@
 #include "devices/Sonar.h"
 
 HWPlatform::HWPlatform() {
-    pSonar = new Sonar(SONAR_ECHO_PIN, SONAR_TRIG_PIN, SONAR_MAX_ECHO_TIME_US);
-    pGreenLed = new Led(LED_GREEN_PIN);
-    pRedLed = new Led(LED_RED_PIN);
+    pProximitySensor = new Sonar(SONAR_ECHO_PIN, SONAR_TRIG_PIN, SONAR_MAX_ECHO_TIME_US);
+    pGreenLight = new Led(LED_GREEN_PIN);
+    pRedLight = new Led(LED_RED_PIN);
 }
 
-ProximitySensor *HWPlatform::getSonar() { return this->pSonar; }
+ProximitySensor *HWPlatform::getProximitySensor() { return this->pProximitySensor; }
 
-Light *HWPlatform::getGreenLed() { return this->pGreenLed; }
+Light *HWPlatform::getGreenLight() { return this->pGreenLight; }
 
-Light *HWPlatform::getRedLed() { return this->pRedLed; }
+Light *HWPlatform::getRedLight() { return this->pRedLight; }

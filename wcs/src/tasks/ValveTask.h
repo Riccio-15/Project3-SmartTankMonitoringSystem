@@ -14,7 +14,7 @@ public:
 private:
     ServoMotor* motor;
     enum ValveState { IDLE, MOVING } state;
-    int openingAngle;
+    float openingAngle;
 };
 
 #endif

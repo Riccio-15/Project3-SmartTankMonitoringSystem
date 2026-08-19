@@ -61,16 +61,14 @@ function updateSystemMode(mode) {
     currentMode = mode;
 
     if (mode === 'MANUAL') {
-        statusBadge.textContent = 'MANUAL';
+        statusBadge.textContent = 'MANUALE';
         statusBadge.className = 'status-badge manual';
-        modeText.textContent = 'Modalità Attuale: Manuale';
-        modeSwitchBtn.textContent = 'Passa ad AUTOMATIC';
+        modeSwitchBtn.textContent = 'Passa ad AUTOMATICA';
         valveSlider.disabled = false; // enable dello slider
     } else if (mode === 'AUTOMATIC') {
-        statusBadge.textContent = 'AUTOMATIC';
+        statusBadge.textContent = 'AUTOMATICA';
         statusBadge.className = 'status-badge automatic';
-        modeText.textContent = 'Modalità Attuale: Automatica';
-        modeSwitchBtn.textContent = 'Passa a MANUAL';
+        modeSwitchBtn.textContent = 'Passa a MANUALE';
         valveSlider.disabled = true; // disble  lo slider
     }
 

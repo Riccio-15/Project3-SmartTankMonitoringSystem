@@ -1,6 +1,8 @@
 #include "config.h"
 #include "model/HWPlatform.h"
+#include "mqtt/MqttService.h"
 #include "tasks/SonarTask.h"
+#include "tasks/MqttTask.h"
 #include "tasks/LedTask.h"
 #include <Arduino.h>
 
@@ -8,6 +10,8 @@ HWPlatform *hw;
 
 SonarTask *sonarTask;
 LedTask *ledTask;
+MqttTask* mqttTask;
+MqttService* mqttService;
 
 void setup() {
     Serial.begin(115200);
@@ -17,7 +21,9 @@ void setup() {
     sonarTask = new SonarTask(hw->getSonar());
     sonarTask->start("SonarTask", SONAR_SAMPLE_PERIOD_MS);
 
-   //TODO: task mqtt
+    mqttService = new MqttService(WIFI_SSID, WIFI_PASSWORD, MQTT_BROKER, MQTT_PORT, MQTT_TOPIC_LEVEL);
+    mqttTask = new MqttTask(mqttService);
+    mqttTask->start("MqttTask", MQTT_TASK_PERIOD_MS);
 
     ledTask = new LedTask(hw->getGreenLed(), hw->getRedLed());
     ledTask->start("LedTask", LED_TASK_PERIOD_MS);

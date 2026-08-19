@@ -10,14 +10,14 @@ class HWPlatform {
 public:
     HWPlatform();
 
-    ProximitySensor* getSonar();
-    Light* getGreenLed();
-    Light* getRedLed();
+    ProximitySensor* getProximitySensor();
+    Light* getGreenLight();
+    Light* getRedLight();
 
 private:
-    ProximitySensor* pSonar;
-    Light* pGreenLed;
-    Light* pRedLed;
+    ProximitySensor* pProximitySensor;
+    Light* pGreenLight;
+    Light* pRedLight;
 };
 
 #endif

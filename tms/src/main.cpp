@@ -18,14 +18,14 @@ void setup() {
 
     hw = new HWPlatform();
 
-    sonarTask = new SonarTask(hw->getSonar());
+    sonarTask = new SonarTask(hw->getProximitySensor());
     sonarTask->start("SonarTask", SONAR_SAMPLE_PERIOD_MS);
 
     mqttService = new MqttService(WIFI_SSID, WIFI_PASSWORD, MQTT_BROKER, MQTT_PORT, MQTT_TOPIC_LEVEL);
     mqttTask = new MqttTask(mqttService);
     mqttTask->start("MqttTask", MQTT_TASK_PERIOD_MS);
 
-    ledTask = new LedTask(hw->getGreenLed(), hw->getRedLed());
+    ledTask = new LedTask(hw->getGreenLight(), hw->getRedLight());
     ledTask->start("LedTask", LED_TASK_PERIOD_MS);
 }
 

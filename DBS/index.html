@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Tank Monitoring - DBS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="topbar">
+        <h1>Smart Tank Monitoring System</h1>
+        <div class="connection-status">
+            <span class="dot online"></span>
+            <span>CUS Connesso</span>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- STATE -->
+        <section class="card state-card">
+            <h2>Stato del Sistema</h2>
+            <div class="state-display">
+                <!-- Le classi sono: automatic, manual, unconnected, not-available -->
+                <span class="status-badge automatic">AUTOMATIC</span>
+            </div>
+            <div class="actions">
+                <p>Modalità Attuale: Automatica</p>
+                <button class="btn switch-btn" id="modeSwitchBtn">Passa a MANUAL</button>
+            </div>
+        </section>
+        <!-- VALVE -->
+        <section class="card valve-card">
+            <h2>Controllo Valvola (WCS)</h2>
+            <div class="valve-info">
+                <p>Apertura attuale:</p>
+                <h3 class="percentage">50%</h3>
+            </div>
+
+            <div class="manual-control">
+                <label for="valveSlider">Regolazione Manuale:</label>
+                <input type="range" id="valveSlider" min="0" max="100" value="50" disabled>
+                <div class="slider-labels">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+        </section>
+        <!-- GRAPH -->
+        <section class="card graph-card">
+            <h2>Livello TANK</h2>
+            <div class="graph-placeholder">
+
+            </div>
+        </section>
+
+    </main>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="app.js"></script>
+
+</html>

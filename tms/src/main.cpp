@@ -23,7 +23,7 @@ void setup() {
 
     mqttService = new MqttService(WIFI_SSID, WIFI_PASSWORD, MQTT_BROKER, MQTT_PORT, MQTT_TOPIC_LEVEL);
     mqttTask = new MqttTask(mqttService);
-    mqttTask->start("MqttTask", MQTT_TASK_PERIOD_MS);
+    mqttTask->start("MqttTask", MQTT_TASK_PERIOD_MS, 8192);
 
     ledTask = new LedTask(hw->getGreenLight(), hw->getRedLight());
     ledTask->start("LedTask", LED_TASK_PERIOD_MS);

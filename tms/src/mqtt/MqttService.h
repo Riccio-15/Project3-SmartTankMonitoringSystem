@@ -1,3 +1,5 @@
+#ifndef __MQTT__
+#define __MQTT__
 #include <WiFi.h>
 #include <PubSubClient.h>
 #define MSG_BUFFER_SIZE  50
@@ -25,3 +27,4 @@ public:
 
 };
 
+#endif

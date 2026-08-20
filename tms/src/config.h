@@ -4,13 +4,13 @@
 #include <Arduino.h>
 
 // pin lato destro dell ESP32
-constexpr int SONAR_TRIG_PIN = 23;
-constexpr int SONAR_ECHO_PIN = 18;
+constexpr int SONAR_TRIG_PIN = 18;
+constexpr int SONAR_ECHO_PIN = 17;
 constexpr int LED_GREEN_PIN  = 2;
-constexpr int LED_RED_PIN    = 16;
+constexpr int LED_RED_PIN    = 5;
 
-constexpr const char* WIFI_SSID     = "LittleBarfly";
-constexpr const char* WIFI_PASSWORD = "esiot2025";
+constexpr const char* WIFI_SSID     = "Subnet mask";
+constexpr const char* WIFI_PASSWORD = "2552552550";
 
 constexpr const char* MQTT_BROKER      = "broker.mqtt-dashboard.com";
 constexpr int          MQTT_PORT       = 1883;

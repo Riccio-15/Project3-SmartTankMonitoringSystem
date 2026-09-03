@@ -12,13 +12,8 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
-/*
-* get status {opening,mode,history}
-* post mode
-* post opening
-* /api/status -> opening,mode,history
-* /api/status -> opening,mode
- */
+
+
 public class HttpApiServer extends AbstractVerticle {
     private final int port;
     private final SystemState state;
@@ -39,8 +34,7 @@ public class HttpApiServer extends AbstractVerticle {
                 .addOrigin("*") // tutti i domini
                 .allowedMethod(HttpMethod.GET)
                 .allowedMethod(HttpMethod.POST)
-                .allowedHeader("Content-Type")
-                .allowedHeader("Authorization"));
+                .allowedHeader("Content-Type"));
 
         router.route().handler(BodyHandler.create());
 

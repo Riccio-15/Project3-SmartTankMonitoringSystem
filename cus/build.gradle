@@ -9,6 +9,8 @@ repositories {
 dependencies {
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
     implementation 'io.github.java-native:jssc:2.9.6'
+    implementation 'io.vertx:vertx-web:5.1.7'
+    implementation 'io.vertx:vertx-core:5.1.7'
 }
 
 application {

@@ -1,10 +1,12 @@
 package cus;
 
 import cus.gui.MainFrame;
+import cus.http.HttpApiServer;
 import cus.model.SystemState;
 import cus.mqtt.ConnectionWatchdog;
 import cus.mqtt.MqttListener;
 import cus.serial.SerialService;
+import io.vertx.core.Vertx;
 
 import javax.swing.*;
 
@@ -22,17 +24,17 @@ public class Main {
         ConnectionWatchdog watchdog = new ConnectionWatchdog(state, serial);
         watchdog.start();
 
-        // possibile implementazione
-        //HttpApiServer http = new HttpApiServer(state, serial);
-        //http.start();
+        Vertx vertx = Vertx.vertx();
+        HttpApiServer http = new HttpApiServer(Config.HTTP_PORT, state, serial);
+        vertx.deployVerticle(http);
 
         SwingUtilities.invokeLater(() -> new MainFrame(state).setVisible(true));
 
-        //andra aggiunto anche http.stop()
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             watchdog.stop();
             mqtt.stop();
             serial.stop();
+            vertx.close();
         }));
     }
 }

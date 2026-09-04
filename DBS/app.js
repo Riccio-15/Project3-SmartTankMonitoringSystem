@@ -3,6 +3,7 @@ const API_URL = 'http://localhost:8080/api/data';
 // init Stato Locale
 let currentMode = 'AUTOMATIC';
 let valveValue = 50;
+let isDraggingSlider = false;
 
 // DOM
 const modeSwitchBtn = document.getElementById('modeSwitchBtn');
@@ -112,9 +113,12 @@ function updateSystemUI(mode, opening) {
         return;
     }
 
-    valveValue = opening;
-    valveSlider.value = valveValue;
-    percentageText.textContent = `${valveValue}%`;
+    // impedisco il refresh del valore se lo sto cambiando in locale
+    if (!isDraggingSlider) {
+        valveValue = opening;
+        valveSlider.value = valveValue;
+        percentageText.textContent = `${valveValue}%`;
+    }
 
     if (mode === 'MANUAL') {
         statusBadge.textContent = 'MANUALE';
@@ -171,6 +175,11 @@ modeSwitchBtn.addEventListener('click', () => {
     sendSystemStatus(newMode, valveValue);
 });
 
+// Segna l'inizio del trascinamento
+valveSlider.addEventListener('pointerdown', () => {
+    isDraggingSlider = true;
+});
+
 // update grafico valore slider
 valveSlider.addEventListener('input', (e) => {
     if (currentMode === 'MANUAL') {
@@ -181,6 +190,7 @@ valveSlider.addEventListener('input', (e) => {
 
 // Invio new valore slider
 valveSlider.addEventListener('change', (e) => {
+    isDraggingSlider = false; // slider rilasciato
     if (currentMode === 'MANUAL') {
         sendSystemStatus(currentMode, e.target.value);
     }

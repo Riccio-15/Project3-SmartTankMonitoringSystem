@@ -26,10 +26,6 @@ public class SystemState {
     // da un successivo periodo di silenzio (vedi ConnectionWatchdog).
     private long pendingOfflineSince = 0;
 
-    private int httpStatusRequests = 0;
-    private int httpModeRequests = 0;
-    private int httpValveRequests = 0;
-
     private final Deque<Integer> history = new ArrayDeque<>();
 
     public synchronized SystemMode getMode() {
@@ -86,14 +82,6 @@ public class SystemState {
         pendingOfflineSince = 0;
     }
 
-    public synchronized boolean hasPendingOfflineSignal() {
-        return pendingOfflineSince != 0;
-    }
-
-    public synchronized long getPendingOfflineSince() {
-        return pendingOfflineSince;
-    }
-
     public synchronized boolean isOfflineGracePeriodElapsed(long graceMillis) {
         return pendingOfflineSince != 0 && (System.currentTimeMillis() - pendingOfflineSince) > graceMillis;
     }
@@ -110,29 +98,5 @@ public class SystemState {
 
     public synchronized List<Integer> getHistorySnapshot() {
         return new ArrayList<>(history);
-    }
-
-    public synchronized void incrementHttpStatusRequests() {
-        httpStatusRequests++;
-    }
-
-    public synchronized void incrementHttpModeRequests() {
-        httpModeRequests++;
-    }
-
-    public synchronized void incrementHttpValveRequests() {
-        httpValveRequests++;
-    }
-
-    public synchronized int getHttpStatusRequests() {
-        return httpStatusRequests;
-    }
-
-    public synchronized int getHttpModeRequests() {
-        return httpModeRequests;
-    }
-
-    public synchronized int getHttpValveRequests() {
-        return httpValveRequests;
     }
 }

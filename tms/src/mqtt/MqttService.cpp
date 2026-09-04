@@ -5,13 +5,21 @@
 #define KEEP_ALIVE_TIME 10 // seconds
 
 WiFiClient espClient;
+
 MqttService::MqttService(const char *ssid, const char *password,
                          const char *broker, int port, const char *topic)
     : topic(topic), ssid(ssid), password(password), broker(broker), port(port) {
     this->connectWifi();
+    this->buildStableClientId();
+
     this->mqttPubClient = new PubSubClient(espClient);
     this->mqttPubClient->setServer(this->broker, this->port);
     this->mqttPubClient->setKeepAlive(KEEP_ALIVE_TIME);
+}
+
+void MqttService::buildStableClientId() {
+    // deve restare identico ad ogni riconnessione
+    this->clientId = "tms-" + WiFi.macAddress();
 }
 
 void MqttService::connectWifi() {
@@ -28,8 +36,6 @@ void MqttService::connectWifi() {
     Serial.println(WiFi.localIP());
 }
 
-// REV: considera l'invio dopo 10s di un messaggio in caso in cui il valore non
-// fosse modificato per evitare che il broker dica che si è disconnesso
 void MqttService::publish(int level) {
     char msg[MSG_BUFFER_SIZE];
     snprintf(msg, MSG_BUFFER_SIZE, "level: #%ld", level);
@@ -37,27 +43,25 @@ void MqttService::publish(int level) {
     this->mqttPubClient->publish(this->topic, msg);
 }
 
-bool MqttService::isConnected() {
-    return mqttPubClient->connected();
-}
+bool MqttService::isConnected() { return mqttPubClient->connected(); }
 
 void MqttService::reconnect() {
     while (!this->mqttPubClient->connected()) {
         Serial.print("Attempting MQTT connection...");
 
-        // Create a random client ID
-        String clientId = String("tmp/DRM") + String(random(0xffff), HEX);
+        bool connected = this->mqttPubClient->connect(
+            this->clientId.c_str(), this->topic,
+            1,    // QoS
+            true, // retain: chi si iscrive dopo vede comunque l'ultimo stato
+            "offline"); // messaggio in caso di disconnessione
 
-        // Attempt to connect
-        if (this->mqttPubClient->connect(clientId.c_str())) {
+        if (connected) {
             Serial.println("connected");
-            this->mqttPubClient->subscribe(this->topic);
         } else {
             Serial.print("failed, rc=");
             Serial.print(this->mqttPubClient->state());
             Serial.println(" try again in 5 seconds");
-            // Wait 5 seconds before retrying
-            delay(5000);
+            vTaskDelay(pdMS_TO_TICKS(5000));
         }
     }
 }

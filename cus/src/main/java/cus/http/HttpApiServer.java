@@ -13,8 +13,17 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 
-
+/**
+ * Espone al DBS un'unica risorsa REST che riassume lo stato del sistema.
+ * <li>
+ * GET /api/data -> { "mode": ..., "opening": ..., "history": [...] }
+ * </li>
+ * <li>
+ * POST /api/data -> { "mode": "AUTOMATIC"|"MANUAL", "opening": 0-100 }
+ * </li>
+ */
 public class HttpApiServer extends AbstractVerticle {
+
     private final int port;
     private final SystemState state;
     private final SerialService serial;
@@ -25,6 +34,12 @@ public class HttpApiServer extends AbstractVerticle {
         this.serial = serial;
     }
 
+    /**
+     * Avvia il router HTTP: CORS aperto a tutti i domini (il DBS gira come
+     * pagina statica separata, quindi le fetch() del browser sono
+     * cross-origin), BodyHandler per leggere il body JSON delle POST, e le
+     * due route su /api/data.
+     */
     @Override
     public void start() {
         Router router = Router.router(vertx);
@@ -47,9 +62,12 @@ public class HttpApiServer extends AbstractVerticle {
                 .listen(port);
 
         log("Service ready on port: " + port);
-
     }
 
+    /**
+     * Risponde con lo stato corrente del sistema cosi' come visto dal CUS:
+     * modalita', apertura valvola e le ultime letture di livello.
+     */
     private void handleGetStatus(RoutingContext routingContext) {
         JsonObject json = new JsonObject();
 
@@ -67,6 +85,12 @@ public class HttpApiServer extends AbstractVerticle {
                 .end(json.encodePrettily());
     }
 
+    /**
+     * Aggiorna la modalita' e/o l'apertura valvola, sia nello stato interno del CUS 
+     *  sia inviandolo al WCS via seriale.
+     *<p>
+     * Rifiuta la richiesta con 409 se il sistema e' UNCONNECTED.
+     */
     private void handleSetStatus(RoutingContext routingContext) {
         HttpServerResponse response = routingContext.response();
 
@@ -83,6 +107,7 @@ public class HttpApiServer extends AbstractVerticle {
             }
             SystemMode newMode = "MANUAL".equalsIgnoreCase(mode) ? SystemMode.MANUAL : SystemMode.AUTOMATIC;
             state.setMode(newMode);
+            serial.sendMode(newMode);
 
             log("Mode set via Http: " + newMode);
 

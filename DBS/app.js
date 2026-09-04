@@ -1,36 +1,28 @@
-/*List TODO:
-check if cus is connected 
-logic to send via http the change of modality and slider value change
-logic to update values of slider and change in modality received by the cus 
-basta,credo
-*/
+const API_URL = 'http://localhost:8080/api/data';
 
-
-// --- Stato Locale della Dashboard ---
-let currentMode = 'AUTOMATIC'; // 'AUTOMATIC', 'MANUAL', 'UNCONNECTED', 'NOT_AVAILABLE'
+// init Stato Locale
+let currentMode = 'AUTOMATIC';
 let valveValue = 50;
-let waterLevelHistory = [15, 18, 22, 25, 30, 35, 32, 28, 30, 34]; // Ultime N misurazioni debug
 
-// --- Riferimenti DOM ---
+// DOM
 const modeSwitchBtn = document.getElementById('modeSwitchBtn');
+const badgeConStatus = document.querySelector('.dot');
+const conStatus = document.querySelectorAll('span')[1];
 const statusBadge = document.querySelector('.status-badge');
-const modeText = document.querySelector('.actions p');
 const valveSlider = document.getElementById('valveSlider');
 const percentageText = document.querySelector('.percentage');
 const graphContainer = document.querySelector('.graph-placeholder');
 
-
 // init Graph
 graphContainer.innerHTML = '<canvas id="waterChart" style="width:100%; height:100%;"></canvas>';
-
 const ctx = document.getElementById('waterChart').getContext('2d');
 const waterChart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: Array.from({ length: 10 }, (_, i) => `t-${9 - i}s`),
+        labels: Array.from({ length: 30 }, (_, i) => `t-${30 - i}s`),
         datasets: [{
-            label: 'Livello Acqua nella tank (cm)',
-            data: waterLevelHistory,
+            label: 'Livello Acqua nella tank (mm)',
+            data: [],
             borderColor: '#2563eb',
             backgroundColor: 'rgba(37, 99, 235, 0.1)',
             borderWidth: 2,
@@ -44,38 +36,142 @@ const waterChart = new Chart(ctx, {
         scales: {
             y: {
                 beginAtZero: true,
-                max: 100,
-                title: { display: true, text: 'Livello (cm)' }
+                max: 1000,
+                title: { display: true, text: 'Livello (mm)' }
             }
         }
     }
 });
 
-// modality change button
-modeSwitchBtn.addEventListener('click', () => {
-    const newMode = currentMode === 'AUTOMATIC' ? 'MANUAL' : 'AUTOMATIC';
-    updateSystemMode(newMode);
-});
+//#region Chiamate HTTP
 
-function updateSystemMode(mode) {
+// GET: Recupera stato attuale e storico dal CUS
+async function fetchSystemStatus() {
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const data = await response.json(); // { mode, opening, history }
+
+        setConnectionStatus(true);
+
+        updateSystemUI(data.mode, data.opening);
+
+        // Aggiorna il grafico
+        if (Array.isArray(data.history)) {
+            waterChart.data.datasets[0].data = data.history;
+            waterChart.update();
+        }
+    } catch (error) {
+        console.error("Errore nel recupero dati dal CUS:", error);
+        setConnectionStatus(false);
+        setCusUnreachableUI();
+    }
+}
+
+// POST: Invia la nuova modalità e/o la percentuale della valvola
+async function sendSystemStatus(mode, opening) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mode: mode,
+                opening: parseInt(opening, 10)
+            })
+        });
+
+        if (response.status === 409) {
+            alert("Impossibile modificare: il CUS è disconnesso (UNCONNECTED).");
+            fetchSystemStatus();
+        } else if (!response.ok) {
+            console.error("Errore nell'invio dello stato:", response.status);
+        }
+    } catch (error) {
+        console.error("Errore di rete durante la sincronizzazione:", error);
+    }
+}
+//#endregion
+
+//#region UI
+
+function updateSystemUI(mode, opening) {
     currentMode = mode;
+
+    resetModeButtonStyle();// toglie i disbled
+
+    if (mode === 'UNCONNECTED') {//TMS disconnected not CUS
+        statusBadge.textContent = 'UNCONNECTED';
+        statusBadge.className = 'status-badge unconnected';
+        valveSlider.disabled = true;
+        modeSwitchBtn.disabled = true;
+        modeSwitchBtn.style.backgroundColor = "lightgray";
+        modeSwitchBtn.style.color = "gray";
+        return;
+    }
+
+    valveValue = opening;
+    valveSlider.value = valveValue;
+    percentageText.textContent = `${valveValue}%`;
 
     if (mode === 'MANUAL') {
         statusBadge.textContent = 'MANUALE';
         statusBadge.className = 'status-badge manual';
         modeSwitchBtn.textContent = 'Passa ad AUTOMATICA';
-        valveSlider.disabled = false; // enable dello slider
+        modeSwitchBtn.disabled = false;
+        valveSlider.disabled = false;
     } else if (mode === 'AUTOMATIC') {
         statusBadge.textContent = 'AUTOMATICA';
         statusBadge.className = 'status-badge automatic';
         modeSwitchBtn.textContent = 'Passa a MANUALE';
-        valveSlider.disabled = true; // disble  lo slider
+        modeSwitchBtn.disabled = false;
+        valveSlider.disabled = true;
     }
-
-    //TODO: aggiungi logica di invio modalita al cus
 }
 
-// real time value change della perchentuale al cambio dello slider
+// only for cus
+function setConnectionStatus(connected) {
+    if (connected) {
+        badgeConStatus.classList.remove('offline');
+        badgeConStatus.classList.add('online');
+        conStatus.textContent = "CUS Connesso";
+    } else {
+        badgeConStatus.classList.remove('online');
+        badgeConStatus.classList.add('offline');
+        conStatus.textContent = "CUS Disconnesso";
+    }
+}
+
+function setCusUnreachableUI() {
+    statusBadge.textContent = "UNAVAILABLE";
+    statusBadge.className = 'status-badge not-available';
+    valveSlider.disabled = true;
+    modeSwitchBtn.disabled = true;
+    modeSwitchBtn.style.backgroundColor = "lightgray";
+    modeSwitchBtn.style.color = "gray";
+}
+
+function resetModeButtonStyle() {
+    modeSwitchBtn.style.backgroundColor = "";
+    modeSwitchBtn.style.color = "";
+}
+
+//#endregion 
+
+//#region Events
+
+//cambio modalità
+modeSwitchBtn.addEventListener('click', () => {
+    if (currentMode === 'UNCONNECTED') return;
+
+    const newMode = currentMode === 'AUTOMATIC' ? 'MANUAL' : 'AUTOMATIC';
+
+    sendSystemStatus(newMode, valveValue);
+});
+
+// update grafico valore slider
 valveSlider.addEventListener('input', (e) => {
     if (currentMode === 'MANUAL') {
         valveValue = e.target.value;
@@ -83,17 +179,17 @@ valveSlider.addEventListener('input', (e) => {
     }
 });
 
-//Update Graph
-// Ogni 5 secondi simula la ricezione di nuove misurazioni
-setInterval(() => {
-    // 1. Simula una nuova lettura del livello dell'acqua
-    const lastValue = waterLevelHistory[waterLevelHistory.length - 1];
-    const delta = Math.floor(Math.random() * 9) - 4; 
-    const newLevel = Math.max(5, Math.min(95, lastValue + delta));
+// Invio new valore slider
+valveSlider.addEventListener('change', (e) => {
+    if (currentMode === 'MANUAL') {
+        sendSystemStatus(currentMode, e.target.value);
+    }
+});
 
-    // Aggiorna la serie di dati nel grafico
-    waterLevelHistory.shift();
-    waterLevelHistory.push(newLevel);
-    waterChart.data.datasets[0].data = waterLevelHistory;
-    waterChart.update();
-}, 5000);
+//#endregion
+
+// Primo recupero immediato
+fetchSystemStatus();
+
+// polling ogni secondo
+setInterval(fetchSystemStatus, 1000);
